@@ -1,9 +1,8 @@
 fn parse(input: &str) -> Vec<u64> {
-    let mut numbers = Vec::new();
-    for line in input.lines() {
-        numbers.push(line.parse::<u64>().expect("lines only contain a number!"));
-    }
-    numbers
+    input
+        .lines()
+        .map(|line| line.parse().expect("lines only contain a number!"))
+        .collect()
 }
 
 pub fn part1(input: &str) -> u64 {
@@ -41,13 +40,25 @@ mod tests {
     use super::*;
 
     #[test]
-    fn day1_p1_example1() {
+    fn p1_input() {
+        let input = std::fs::read_to_string("input/day1").expect("reading input file");
+        assert_eq!(part1(&input), 910539);
+    }
+
+    #[test]
+    fn p1_example1() {
         let input = "1721\n979\n366\n299\n675\n1456";
         assert_eq!(part1(input), 514579);
     }
 
     #[test]
-    fn day1_p2_example1() {
+    fn p2_input() {
+        let input = std::fs::read_to_string("input/day1").expect("reading input file");
+        assert_eq!(part2(&input), 116724144);
+    }
+
+    #[test]
+    fn p2_example1() {
         let input = "1721\n979\n366\n299\n675\n1456";
         assert_eq!(part2(input), 241861950);
     }
