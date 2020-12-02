@@ -1,5 +1,6 @@
 use std::{env, fs};
 mod day1;
+mod day2;
 
 fn main() {
     let day = env::args()
@@ -14,6 +15,8 @@ fn main() {
     match (day.as_str(), part) {
         ("day1", 1) => println!("Result: {}", day1::part1(&input)),
         ("day1", 2) => println!("Result: {}", day1::part2(&input)),
+        ("day2", 1) => println!("Result: {}", day2::part1(&input)),
+        ("day2", 2) => println!("Result: {}", day2::part2(&input)),
         _ => panic!("day not implemented!"),
     };
 }
