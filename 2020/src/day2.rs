@@ -8,23 +8,21 @@ struct Policy {
     c: char,
 }
 
-fn parse(input: &str) -> Vec<(Policy, &str)> {
+fn parse(input: &str) -> impl Iterator<Item = (Policy, &str)> {
     lazy_static! {
         static ref RE: Regex = Regex::new(r"(\d+)-(\d+) ([a-z]): ([a-z]+)").unwrap();
     }
 
-    input
-        .lines()
-        .map(|line| {
-            let captures = RE.captures(line).expect("correct input format");
-            let policy = Policy {
-                first: captures.get(1).unwrap().as_str().parse().unwrap(),
-                second: captures.get(2).unwrap().as_str().parse().unwrap(),
-                c: captures.get(3).unwrap().as_str().chars().next().unwrap(),
-            };
-            (policy, captures.get(4).unwrap().as_str())
-        })
-        .collect()
+    input.lines().map(|line| {
+        let captures = RE.captures(line).expect("correct input format");
+        let policy = Policy {
+            first: captures.get(1).unwrap().as_str().parse().unwrap(),
+            second: captures.get(2).unwrap().as_str().parse().unwrap(),
+            c: captures.get(3).unwrap().as_str().chars().next().unwrap(),
+        };
+
+        (policy, captures.get(4).unwrap().as_str())
+    })
 }
 
 pub fn part1(input: &str) -> u64 {
@@ -50,7 +48,7 @@ pub fn part2(input: &str) -> u64 {
         let password = password.as_bytes();
         let first_match = password[(policy.first - 1) as usize] as char == policy.c;
         let second_match = password[(policy.second - 1) as usize] as char == policy.c;
-        if (first_match && !second_match) || (!first_match && second_match) {
+        if first_match ^ second_match {
             valid_count += 1;
         }
     }
