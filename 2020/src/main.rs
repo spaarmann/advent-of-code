@@ -1,7 +1,10 @@
+#![feature(str_split_once)]
+
 use std::{env, fs};
 mod day1;
 mod day2;
 mod day3;
+mod day4;
 
 fn main() {
     let day = env::args()
@@ -20,6 +23,8 @@ fn main() {
         ("day2", 2) => println!("Result: {}", day2::part2(&input)),
         ("day3", 1) => println!("Result: {}", day3::part1(&input)),
         ("day3", 2) => println!("Result: {}", day3::part2(&input)),
+        ("day4", 1) => println!("Result: {}", day4::part1(&input)),
+        ("day4", 2) => println!("Result: {}", day4::part2(&input)),
         _ => panic!("day not implemented!"),
     };
 }
