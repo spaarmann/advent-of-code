@@ -19,6 +19,7 @@ pub fn part1(input: &str) -> u64 {
 pub fn part2(input: &str) -> u64 {
     let mut seats = parse(input).collect::<Vec<_>>();
     seats.sort_unstable();
+
     for i in 1..seats.len() {
         if seats[i - 1] + 2 == seats[i] {
             return seats[i] - 1;
