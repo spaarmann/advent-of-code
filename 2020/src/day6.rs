@@ -1,35 +1,19 @@
-fn sum_bools(bools: &[bool]) -> u64 {
-    bools.iter().map(|b| u64::from(*b)).sum()
-}
+use itertools::Itertools;
 
 pub fn part1(input: &str) -> u64 {
     input
         .split("\n\n")
-        .map(|group_input| {
-            let mut answers = [false; 26];
-            group_input.chars().for_each(|c| {
-                if let 'a'..='z' = c {
-                    answers[(c as usize) - ('a' as usize)] = true;
-                }
-            });
-            sum_bools(&answers)
-        })
+        .map(|group| group.lines().flat_map(|line| line.chars()).unique().count() as u64)
         .sum()
 }
 
 pub fn part2(input: &str) -> u64 {
     input
         .split("\n\n")
-        .map(|group_input| {
-            let mut answers = [true; 26];
-            group_input.lines().for_each(|line| {
-                for c in 'a'..='z' {
-                    if !line.contains(c) {
-                        answers[(c as usize) - ('a' as usize)] = false;
-                    }
-                }
-            });
-            sum_bools(&answers)
+        .map(|group| {
+            ('a'..='z')
+                .map::<u64, _>(|q| group.lines().all(|p| p.contains(q)).into())
+                .sum::<u64>()
         })
         .sum()
 }
