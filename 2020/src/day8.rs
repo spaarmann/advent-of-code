@@ -1,61 +1,66 @@
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
-enum Instr {
+enum Op {
     Nop,
     Acc,
     Jmp,
 }
+use Op::*;
 
-use Instr::*;
+struct Instr {
+    op: Op,
+    num: i64,
+}
 
-fn parse(input: &str) -> impl Iterator<Item = (Instr, isize)> + '_ {
+fn parse(input: &str) -> impl Iterator<Item = Instr> + '_ {
     input.lines().map(|line| {
-        let instr = match &line[..3] {
+        let op = match &line[..3] {
             "nop" => Nop,
             "acc" => Acc,
             "jmp" => Jmp,
             _ => panic!("invalid instruction!"),
         };
-        let offset = line[4..].parse().expect("valid offset");
-        (instr, offset)
+        let num = line[4..].parse().expect("valid offset");
+        Instr { op, num }
     })
 }
 
-fn evaluate_program(program: &[(Instr, isize)]) -> (i64, bool) {
+fn run_program(program: &[Instr]) -> (i64, bool) {
     let mut visited = vec![false; program.len()];
     let mut acc = 0;
     let mut index = 0isize;
     let len = program.len() as isize;
 
     while index < len && !visited[index as usize] {
-        let (instr, offset) = program[index as usize];
         visited[index as usize] = true;
-        match instr {
-            Acc => {
-                acc += offset as i64;
-                index += 1
-            }
-            Jmp => index += offset,
-            Nop => index += 1,
-        };
+        (index, acc) = run_step(&program, (index, acc));
     }
 
     (acc, index == len)
 }
 
-pub fn part1(input: &str) -> i64 {
-    let program = parse(input).collect::<Vec<_>>();
-    evaluate_program(&program).0
+fn run_step(program: &[Instr], state: (isize, i64)) -> (isize, i64) {
+    let instr = &program[state.0 as usize];
+    match instr.op {
+        Nop => (state.0 + 1, state.1),
+        Acc => (state.0 + 1, state.1 + instr.num),
+        Jmp => (state.0 + instr.num as isize, state.1),
+    }
 }
 
-fn try_replacement(program: &mut [(Instr, isize)], i: usize, replacement: Instr) -> (i64, bool) {
-    if program[i].0 == replacement {
+pub fn part1(input: &str) -> i64 {
+    let program = parse(input).collect::<Vec<_>>();
+    run_program(&program).0
+}
+
+fn try_replacement(program: &mut [Instr], i: usize, replacement: Op) -> (i64, bool) {
+    if program[i].op == replacement {
         return (0, false);
     }
 
-    let orig = program[i].0;
-    program[i].0 = replacement;
-    let (result, terminated) = evaluate_program(program);
-    program[i].0 = orig;
+    let orig = program[i].op;
+    program[i].op = replacement;
+    let (result, terminated) = run_program(program);
+    program[i].op = orig;
 
     (result, terminated)
 }
@@ -63,13 +68,13 @@ fn try_replacement(program: &mut [(Instr, isize)], i: usize, replacement: Instr)
 pub fn part2(input: &str) -> i64 {
     let mut program = parse(input).collect::<Vec<_>>();
 
-    for i in 0..program.len() {
-        let (result, terminated) = evaluate_program(&program);
-        if terminated {
-            return result;
-        };
+    let (result, terminated) = run_program(&program);
+    if terminated {
+        return result;
+    };
 
-        if program[i].0 == Acc {
+    for i in 0..program.len() {
+        if program[i].op == Acc {
             continue;
         }
 

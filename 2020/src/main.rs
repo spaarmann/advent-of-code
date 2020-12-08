@@ -1,4 +1,5 @@
 #![feature(str_split_once)]
+#![feature(destructuring_assignment)]
 
 use std::{env, fs};
 mod day1;
