@@ -8,6 +8,7 @@ mod day4;
 mod day5;
 mod day6;
 mod day7;
+mod day8;
 
 fn main() {
     let day = env::args()
@@ -34,6 +35,8 @@ fn main() {
         ("day6", 2) => println!("Result: {}", day6::part2(&input)),
         ("day7", 1) => println!("Result: {}", day7::part1(&input)),
         ("day7", 2) => println!("Result: {}", day7::part2(&input)),
+        ("day8", 1) => println!("Result: {}", day8::part1(&input)),
+        ("day8", 2) => println!("Result: {}", day8::part2(&input)),
         _ => panic!("day not implemented!"),
     };
 }
