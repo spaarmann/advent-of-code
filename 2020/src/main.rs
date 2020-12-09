@@ -1,5 +1,6 @@
 #![feature(str_split_once)]
 #![feature(destructuring_assignment)]
+#![feature(min_const_generics)]
 
 use std::{env, fs};
 mod day1;
@@ -10,6 +11,7 @@ mod day5;
 mod day6;
 mod day7;
 mod day8;
+mod day9;
 
 fn main() {
     let day = env::args()
@@ -38,6 +40,8 @@ fn main() {
         ("day7", 2) => println!("Result: {}", day7::part2(&input)),
         ("day8", 1) => println!("Result: {}", day8::part1(&input)),
         ("day8", 2) => println!("Result: {}", day8::part2(&input)),
+        ("day9", 1) => println!("Result: {}", day9::part1(&input)),
+        ("day9", 2) => println!("Result: {}", day9::part2(&input)),
         _ => panic!("day not implemented!"),
     };
 }
