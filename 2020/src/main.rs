@@ -5,6 +5,7 @@
 use std::{env, fs};
 mod day1;
 mod day10;
+mod day11;
 mod day2;
 mod day3;
 mod day4;
@@ -45,6 +46,8 @@ fn main() {
         ("day9", 2) => println!("Result: {}", day9::part2(&input)),
         ("day10", 1) => println!("Result: {}", day10::part1(&input)),
         ("day10", 2) => println!("Result: {}", day10::part2(&input)),
+        ("day11", 1) => println!("Result: {}", day11::part1(&input)),
+        ("day11", 2) => println!("Result: {}", day11::part2(&input)),
         _ => panic!("day not implemented!"),
     };
 }
