@@ -1,11 +1,13 @@
 #![feature(str_split_once)]
 #![feature(destructuring_assignment)]
 #![feature(min_const_generics)]
+#![feature(unsigned_abs)]
 
 use std::{env, fs};
 mod day1;
 mod day10;
 mod day11;
+mod day12;
 mod day2;
 mod day3;
 mod day4;
@@ -48,6 +50,8 @@ fn main() {
         ("day10", 2) => println!("Result: {}", day10::part2(&input)),
         ("day11", 1) => println!("Result: {}", day11::part1(&input)),
         ("day11", 2) => println!("Result: {}", day11::part2(&input)),
+        ("day12", 1) => println!("Result: {}", day12::part1(&input)),
+        ("day12", 2) => println!("Result: {}", day12::part2(&input)),
         _ => panic!("day not implemented!"),
     };
 }
