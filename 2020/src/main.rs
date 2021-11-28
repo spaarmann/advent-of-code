@@ -1,7 +1,4 @@
-#![feature(str_split_once)]
 #![feature(destructuring_assignment)]
-#![feature(min_const_generics)]
-#![feature(unsigned_abs)]
 
 use std::{env, fs};
 mod day1;

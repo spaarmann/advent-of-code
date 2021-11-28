@@ -1,6 +1,5 @@
 use lazy_static::lazy_static;
 use regex::Regex;
-use std::collections::HashMap;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 struct Restrictions<'a> {
