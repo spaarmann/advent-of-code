@@ -11,6 +11,7 @@ mod day12;
 mod day13;
 mod day14;
 mod day15;
+mod day16;
 mod day2;
 mod day3;
 mod day4;
@@ -61,6 +62,8 @@ fn main() {
         ("day14", 2) => println!("Result: {}", day14::part2(&input)),
         ("day15", 1) => println!("Result: {}", day15::part1(&input)),
         ("day15", 2) => println!("Result: {}", day15::part2(&input)),
+        ("day16", 1) => println!("Result: {}", day16::part1(&input)),
+        ("day16", 2) => println!("Result: {}", day16::part2(&input)),
         _ => panic!("day not implemented!"),
     };
 }
