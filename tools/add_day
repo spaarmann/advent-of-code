@@ -1,0 +1,34 @@
+#!/usr/bin/env fish
+
+# Parse command line args
+set argc (count $argv)
+if test "$argc" != 1
+	echo "Usage: add_day <day_number>"
+	exit 1
+else
+	set day "$argv[1]"
+end
+
+set year (string split -f 2 -r -m1 / (pwd))
+
+echo "Adding day $day to project for year $year..."
+
+# set main_path "src/main.rs"
+# set day_path "src/day$day.rs"
+# 
+# sed -i "/\/\/ MARK:MODULES/i mod day$day;" $main_path
+# sed -i "/\/\/ MARK:DAYS/i (\"day$day\", 1) => run(&input, day$day::part1)," $main_path
+# sed -i "/\/\/ MARK:DAYS/i (\"day$day\", 2) => run(&input, day$day::part2)," $main_path
+# 
+# cp ../tools/template_day.rs "src/day$day.rs"
+# 
+# cargo fmt
+
+
+echo "Downloading input for day $day..."
+
+source "../token"
+
+set url "https://adventofcode.com/$year/day/$day/input"
+
+curl --cookie "session=$token;" "$url" -o "input/day$day"
