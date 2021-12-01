@@ -19,18 +19,18 @@ mod tests {
 
     #[test]
     fn p1_input() {
-        let input = std::fs::read_to_string("input/day$DAY$").expect("reading input file");
+        let input = std::fs::read_to_string("input/day%DAY%").expect("reading input file");
         assert_eq!(part1(&input), todo!());
     }
 
     #[test]
     fn p2_example() {
-        assert_eq!(part2(&input), todo!());
+        assert_eq!(part2(EXAMPLE_INPUT), todo!());
     }
 
     #[test]
     fn p2_input() {
-        let input = std::fs::read_to_string("input/day$DAY$").expect("reading input file");
+        let input = std::fs::read_to_string("input/day%DAY%").expect("reading input file");
         assert_eq!(part2(&input), todo!());
     }
 }
