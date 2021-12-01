@@ -3,6 +3,7 @@
 use std::{env, fmt::Display, fs};
 
 mod day1;
+mod day2;
 // MARK:MODULES
 
 fn main() {
@@ -18,6 +19,8 @@ fn main() {
     match (day.as_str(), part) {
         ("day1", 1) => run(&input, day1::part1),
         ("day1", 2) => run(&input, day1::part2),
+        ("day2", 1) => run(&input, day2::part1),
+        ("day2", 2) => run(&input, day2::part2),
         // MARK:DAYS
         _ => panic!("day not implemented!"),
     }
