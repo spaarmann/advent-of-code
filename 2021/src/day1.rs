@@ -5,8 +5,8 @@ pub fn part1(input: &str) -> u64 {
         .lines()
         .map(|l| l.parse::<u64>().unwrap())
         .tuple_windows()
-        .map(|(a, b)| (b > a) as u64)
-        .sum()
+        .filter(|(a, b)| b > a)
+        .count() as u64
 }
 
 pub fn part2(input: &str) -> u64 {
@@ -16,8 +16,8 @@ pub fn part2(input: &str) -> u64 {
         .tuple_windows()
         .map(|(a, b, c)| a + b + c)
         .tuple_windows()
-        .map(|(sum1, sum2)| (sum2 > sum1) as u64)
-        .sum()
+        .filter(|(sum1, sum2)| sum2 > sum1)
+        .count() as u64
 }
 
 #[cfg(test)]
