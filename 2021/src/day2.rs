@@ -2,7 +2,7 @@ fn parse(input: &str) -> impl Iterator<Item = (&str, u64)> + '_ {
     input
         .lines()
         .map(|l| l.split_once(' ').unwrap())
-        .map(|(dir, number)| (dir, number.parse::<u64>().unwrap()))
+        .map(|(dir, number)| (dir, number.parse().unwrap()))
 }
 
 pub fn part1(input: &str) -> u64 {
