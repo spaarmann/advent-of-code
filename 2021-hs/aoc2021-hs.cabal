@@ -26,6 +26,7 @@ source-repository head
 library
   exposed-modules:
       Day1
+      Day2
   other-modules:
       Paths_aoc2021_hs
   hs-source-dirs:
@@ -44,7 +45,6 @@ executable aoc2021-hs-exe
   build-depends:
       aoc2021-hs
     , base >=4.7 && <5
-    , directory
   default-language: Haskell2010
 
 test-suite aoc2021-hs-test

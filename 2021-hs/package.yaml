@@ -35,7 +35,6 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - aoc2021-hs
-    - directory
 
 tests:
   aoc2021-hs-test:
