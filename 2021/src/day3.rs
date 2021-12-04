@@ -44,7 +44,7 @@ pub fn part2(input: &str) -> u64 {
         i -= 1;
     }
 
-    let mut co2_candidates = nums.clone();
+    let mut co2_candidates = nums;
     i = (num_bits - 1) as i32;
     while co2_candidates.len() > 1 {
         if i < 0 {
