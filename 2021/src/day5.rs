@@ -79,20 +79,19 @@ fn make_map(lines: impl Iterator<Item = Line>) -> Vec<i32> {
     map
 }
 
+fn parse_lines(input: &str) -> impl Iterator<Item = Line> + '_ {
+    input.lines().map(|l| l.parse::<Line>().unwrap())
+}
+
 pub fn part1(input: &str) -> u64 {
-    make_map(
-        input
-            .lines()
-            .map(|l| l.parse::<Line>().unwrap())
-            .filter(|l| l.start.x == l.end.x || l.start.y == l.end.y),
-    )
-    .iter()
-    .filter(|&&n| n >= 2)
-    .count() as u64
+    make_map(parse_lines(input).filter(|l| l.start.x == l.end.x || l.start.y == l.end.y))
+        .iter()
+        .filter(|&&n| n >= 2)
+        .count() as u64
 }
 
 pub fn part2(input: &str) -> u64 {
-    make_map(input.lines().map(|l| l.parse::<Line>().unwrap()))
+    make_map(parse_lines(input))
         .iter()
         .filter(|&&n| n >= 2)
         .count() as u64
