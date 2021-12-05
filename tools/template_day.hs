@@ -6,6 +6,6 @@ module Day%DAY%
 
 example = undefined
 
-part1 input = undefined
+part1 input = 0
 
-part2 input = undefined
+part2 input = 0
