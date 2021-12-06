@@ -1,6 +1,5 @@
 fn simulate_fish(input: &str, days: u64) -> u64 {
     let mut state = [0; 9];
-    let mut state_new = [0; 9];
 
     for initial_value in input
         .split(',')
@@ -10,17 +9,8 @@ fn simulate_fish(input: &str, days: u64) -> u64 {
     }
 
     for _ in 0..days {
-        for (i, &count) in state.iter().enumerate() {
-            if i == 0 {
-                state_new[8] = count;
-            } else {
-                state_new[i - 1] = count;
-            }
-        }
-
-        state_new[6] += state_new[8];
-
-        (state, state_new) = (state_new, state);
+        state.rotate_left(1);
+        state[6] += state[8];
     }
 
     state.iter().sum::<u64>()
