@@ -14,11 +14,12 @@ set year (string split -f 2 -r -m1 / (pwd))
 echo "Adding day $day to project for year $year..."
 
 set main_path "src/main.rs"
+set lib_path "src/lib.rs"
 set day_path "src/day$day.rs"
 
-sed -i "/\/\/ MARK:MODULES/i mod day$day;" "$main_path"
-sed -i "/\/\/ MARK:DAYS/i (\"day$day\", 1) => run(&input, day$day::part1)," "$main_path"
-sed -i "/\/\/ MARK:DAYS/i (\"day$day\", 2) => run(&input, day$day::part2)," "$main_path"
+sed -i "/\/\/ MARK:MODULES/i mod day$day;" "$lib_path"
+sed -i "/\/\/ MARK:DAYS/i (\"day$day\", 1) => run(&input, aoc2021::day$day::part1)," "$main_path"
+sed -i "/\/\/ MARK:DAYS/i (\"day$day\", 2) => run(&input, aoc2021::day$day::part2)," "$main_path"
 
 cp ../tools/template_day.rs "$day_path"
 sed -i "s/%DAY%/$day/g" "$day_path"
