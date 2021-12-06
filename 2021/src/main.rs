@@ -1,5 +1,7 @@
 #![feature(destructuring_assignment)]
 
+extern crate nalgebra as na;
+
 use std::{env, fmt::Display, fs};
 
 mod day1;

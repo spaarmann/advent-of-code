@@ -1,3 +1,5 @@
+use na::{RowSVector, SMatrix, SVector};
+
 fn simulate_fish(input: &str, days: u64) -> u64 {
     let mut state = [0; 9];
 
@@ -8,12 +10,34 @@ fn simulate_fish(input: &str, days: u64) -> u64 {
         state[initial_value] += 1;
     }
 
+    let initial_vec = SVector::<f64, 9>::from_vec(state.iter().map(|&n| n as f64).collect());
+
+    // First Approach: Just update bucket-based state the appropriate amount of times.
     for _ in 0..days {
         state.rotate_left(1);
         state[6] += state[8];
     }
 
-    state.iter().sum::<u64>()
+    // Second Approach: Do some linear algebra!
+    let update_matrix = SMatrix::<f64, 9, 9>::from_rows(&[
+        RowSVector::from_row_slice(&[0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]),
+        RowSVector::from_row_slice(&[0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]),
+        RowSVector::from_row_slice(&[0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]),
+        RowSVector::from_row_slice(&[0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0]),
+        RowSVector::from_row_slice(&[0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0]),
+        RowSVector::from_row_slice(&[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0]),
+        RowSVector::from_row_slice(&[1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0]),
+        RowSVector::from_row_slice(&[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]),
+        RowSVector::from_row_slice(&[1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]),
+    ]);
+
+    let result_vec = update_matrix.pow(days - 1).unwrap() * initial_vec;
+
+    let result1 = state.iter().sum::<u64>();
+    let result2 = result_vec.sum() as u64;
+
+    assert_eq!(result1, result2);
+    result1
 }
 
 pub fn part1(input: &str) -> u64 {
