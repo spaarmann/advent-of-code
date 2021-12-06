@@ -7,6 +7,7 @@ mod day2;
 mod day3;
 mod day4;
 mod day5;
+mod day6;
 // MARK:MODULES
 
 fn main() {
@@ -30,6 +31,8 @@ fn main() {
         ("day4", 2) => run(&input, day4::part2),
         ("day5", 1) => run(&input, day5::part1),
         ("day5", 2) => run(&input, day5::part2),
+        ("day6", 1) => run(&input, day6::part1),
+        ("day6", 2) => run(&input, day6::part2),
         // MARK:DAYS
         _ => panic!("day not implemented!"),
     }
