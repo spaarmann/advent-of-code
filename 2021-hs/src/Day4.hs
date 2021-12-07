@@ -6,6 +6,7 @@ module Day4
     , example
     ) where
 
+import Data.Bifunctor
 import Data.List
 import Data.List.Split
 import Debug.Trace
@@ -52,16 +53,38 @@ parseBoard str = boardFromInts $ map read (concatMap words $ lines str)
 parseInput :: String -> ([Int], [BingoBoard])
 parseInput str = case splitOn "\n\n" str of
                    (numbers : boards) -> (map read (splitOn "," numbers), map parseBoard boards)
-                   _ -> undefined
+                   _ -> error "parse error"
 
+playBingo :: [Int] -> [BingoBoard] -> [(Int, [BingoBoard])]
+playBingo nums boards = scanl (\(_, boards') num -> (num, map (`markNumber` num) boards')) (-1, boards) nums
+
+-- This is neat, but I'm not quite happy with having to find the winning board out of a list again,
+-- after having already figured out it is winning.
 part1 input = let (nums, boards) = parseInput input in
+                  case second (find hasWon) $ head $ dropWhile (not . any hasWon . snd) (playBingo nums boards) of
+                    (num, Just winner) -> num * score winner
+                    (num, Nothing) -> error "no board won!"
+
+-- This avoids the problem from above, but at the expense of the `unpack` function, which I also
+-- don't like very much.
+part1Unpack input = let (nums, boards) = parseInput input in
+                  case find (hasWon . snd) $ unpack (playBingo nums boards) of
+                    Just (num, winner) -> num * score winner
+                    Nothing -> error "no board won!"
+
+unpack :: [(Int, [BingoBoard])] -> [(Int, BingoBoard)]
+unpack = concatMap (\(n, boards) -> map (n,) boards) 
+
+-- This was my original solution and is actually pretty okay, but I *really* like the concept of the
+-- `playBingo` function and taking advantage of laziness, so...
+part1Recursive input = let (nums, boards) = parseInput input in
             helper nums boards
   where
     helper (n : nums) boards = let boards' = map (`markNumber` n) boards in
                                    case find hasWon boards' of
                                      Just winner -> n * score winner
                                      Nothing -> helper nums boards'
-    helper _ _ = undefined
+    helper _ _ = error "no board won!"
 
 part2 input = let (nums, boards) = parseInput input in
                   helper nums boards
