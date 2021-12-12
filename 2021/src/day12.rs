@@ -1,14 +1,14 @@
 use std::collections::HashMap;
 
-struct CaveSystem {
-    caves: Vec<(String, bool)>,
+struct CaveSystem<'a> {
+    caves: Vec<(&'a str, bool)>,
     connections: Vec<Vec<usize>>,
     start: usize,
     end: usize,
 }
 
-impl CaveSystem {
-    fn parse(input: &str) -> CaveSystem {
+impl<'a> CaveSystem<'a> {
+    fn parse(input: &'a str) -> CaveSystem<'a> {
         let mut caves = Vec::new();
         let mut connections = Vec::new();
         let mut name_to_idx = HashMap::new();
@@ -20,18 +20,12 @@ impl CaveSystem {
             let (first, second) = line.split_once('-').unwrap();
 
             let first_idx = *name_to_idx.entry(first).or_insert_with(|| {
-                caves.push((
-                    first.to_string(),
-                    first.chars().next().unwrap().is_uppercase(),
-                ));
+                caves.push((first, first.chars().next().unwrap().is_uppercase()));
                 connections.push(Vec::new());
                 caves.len() - 1
             });
             let second_idx = *name_to_idx.entry(second).or_insert_with(|| {
-                caves.push((
-                    second.to_string(),
-                    second.chars().next().unwrap().is_uppercase(),
-                ));
+                caves.push((second, second.chars().next().unwrap().is_uppercase()));
                 connections.push(Vec::new());
                 caves.len() - 1
             });
