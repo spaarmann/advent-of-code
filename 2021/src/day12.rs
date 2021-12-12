@@ -61,36 +61,20 @@ impl CaveSystem {
         }
     }
 
-    fn count_paths(&self, prefix: Vec<usize>) -> usize {
-        let current_end = *prefix.last().unwrap();
-        if current_end == self.end {
-            return 1;
-        }
+    fn count_paths(&self, can_use_double_small_cave: bool) -> usize {
+        let mut start = vec![self.start];
 
-        let mut count = 0;
+        let mut flags = vec![false; self.caves.len()];
+        flags[self.start] = true;
 
-        let end_connections = &self.connections[current_end];
-        for &connection in end_connections {
-            // Can walk down this path if it is a big cave, so we can visit it twice, or if it
-            // small but we haven't visited it before on this path.
-            let can_use_connection = self.caves[connection].1 || !prefix.contains(&connection);
-            if !can_use_connection {
-                continue;
-            }
-
-            let mut new_prefix = prefix.clone();
-            new_prefix.push(connection);
-
-            count += self.count_paths(new_prefix);
-        }
-
-        count
+        self.count_paths_rec(&mut start, &mut flags, can_use_double_small_cave)
     }
 
-    fn count_paths_double_small_cave(
+    fn count_paths_rec(
         &self,
-        prefix: Vec<usize>,
-        has_double_small_cave: bool,
+        prefix: &mut Vec<usize>,
+        used_flags: &mut [bool],
+        can_still_use_double_small_cave: bool,
     ) -> usize {
         let current_end = *prefix.last().unwrap();
         if current_end == self.end {
@@ -103,28 +87,35 @@ impl CaveSystem {
         for &connection in end_connections {
             // Can walk down this path if it is a big cave, so we can visit it twice, or if it
             // small but we haven't visited it before on this path, ...
-            let mut can_use_connection = self.caves[connection].1 || !prefix.contains(&connection);
+            let mut can_use_connection = self.caves[connection].1 || !used_flags[connection];
 
             // ... or if it is small, but not start or end, and we have visited it before, but we
             // haven't visited any other small cave twice.
-            let mut new_has_double = has_double_small_cave;
+            let mut new_can_use_double = can_still_use_double_small_cave;
+            let mut used_double = false;
             if !can_use_connection
-                && !has_double_small_cave
+                && can_still_use_double_small_cave
                 && connection != self.start
                 && connection != self.end
             {
                 can_use_connection = true;
-                new_has_double = true;
+                new_can_use_double = false;
+                used_double = true;
             }
 
             if !can_use_connection {
                 continue;
             }
 
-            let mut new_prefix = prefix.clone();
-            new_prefix.push(connection);
+            prefix.push(connection);
+            used_flags[connection] = true;
 
-            count += self.count_paths_double_small_cave(new_prefix, new_has_double);
+            count += self.count_paths_rec(prefix, used_flags, new_can_use_double);
+
+            prefix.pop();
+            if !used_double {
+                used_flags[connection] = false;
+            }
         }
 
         count
@@ -133,16 +124,12 @@ impl CaveSystem {
 
 pub fn part1(input: &str) -> u64 {
     let system = CaveSystem::parse(input);
-    let start = vec![system.start];
-
-    system.count_paths(start) as u64
+    system.count_paths(false) as u64
 }
 
 pub fn part2(input: &str) -> u64 {
     let system = CaveSystem::parse(input);
-    let start = vec![system.start];
-
-    system.count_paths_double_small_cave(start, false) as u64
+    system.count_paths(true) as u64
 }
 
 #[cfg(test)]
