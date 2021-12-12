@@ -56,28 +56,25 @@ impl<'a> CaveSystem<'a> {
     }
 
     fn count_paths(&self, can_use_double_small_cave: bool) -> usize {
-        let mut start = vec![self.start];
-
         let mut flags = vec![false; self.caves.len()];
         flags[self.start] = true;
 
-        self.count_paths_rec(&mut start, &mut flags, can_use_double_small_cave)
+        self.count_paths_rec(self.start, &mut flags, can_use_double_small_cave)
     }
 
     fn count_paths_rec(
         &self,
-        prefix: &mut Vec<usize>,
+        current_cave: usize,
         used_flags: &mut [bool],
         can_still_use_double_small_cave: bool,
     ) -> usize {
-        let current_end = *prefix.last().unwrap();
-        if current_end == self.end {
+        if current_cave == self.end {
             return 1;
         }
 
         let mut count = 0;
 
-        let end_connections = &self.connections[current_end];
+        let end_connections = &self.connections[current_cave];
         for &connection in end_connections {
             // Can walk down this path if it is a big cave, so we can visit it twice, or if it
             // small but we haven't visited it before on this path, ...
@@ -101,12 +98,10 @@ impl<'a> CaveSystem<'a> {
                 continue;
             }
 
-            prefix.push(connection);
             used_flags[connection] = true;
 
-            count += self.count_paths_rec(prefix, used_flags, new_can_use_double);
+            count += self.count_paths_rec(connection, used_flags, new_can_use_double);
 
-            prefix.pop();
             if !used_double {
                 used_flags[connection] = false;
             }
