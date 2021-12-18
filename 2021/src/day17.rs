@@ -163,6 +163,6 @@ mod tests {
     #[test]
     fn p2_input() {
         let input = std::fs::read_to_string("input/day17").expect("reading input file");
-        assert_eq!(part2(&input), todo!());
+        assert_eq!(part2(&input), 3344);
     }
 }

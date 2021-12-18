@@ -1,5 +1,6 @@
 #![feature(destructuring_assignment)]
 #![feature(let_else)]
+#![feature(assert_matches)]
 
 extern crate nalgebra as na;
 
@@ -12,6 +13,7 @@ pub mod day14;
 pub mod day15;
 pub mod day16;
 pub mod day17;
+pub mod day18;
 pub mod day2;
 pub mod day3;
 pub mod day4;
