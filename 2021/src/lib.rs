@@ -1,5 +1,7 @@
 #![feature(let_else)]
 #![feature(assert_matches)]
+#![feature(int_abs_diff)]
+#![feature(iter_intersperse)]
 
 extern crate nalgebra as na;
 
@@ -18,6 +20,7 @@ pub mod day2;
 pub mod day20;
 pub mod day21;
 pub mod day22;
+pub mod day23;
 pub mod day3;
 pub mod day4;
 pub mod day5;
