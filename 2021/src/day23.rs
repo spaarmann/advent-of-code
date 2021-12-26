@@ -61,7 +61,7 @@ impl Amphipod {
 }
 
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-struct State {
+struct State<const ROOM_LEN: usize> {
     //#############
     //#...........# <- hallway, 0-10, from left to right
     //###D#D#C#B### <- index 0 in room
@@ -69,10 +69,10 @@ struct State {
     //  #########
     //   0 1 2 3    <- room indices
     hallway: [Option<Amphipod>; 11],
-    rooms: [[Option<Amphipod>; 2]; 4],
+    rooms: [[Option<Amphipod>; ROOM_LEN]; 4],
 }
 
-impl State {
+impl<const ROOM_LEN: usize> State<ROOM_LEN> {
     fn is_finish_state(&self) -> bool {
         self.hallway.iter().all(|s| s.is_none())
             && self.rooms[0].iter().all(|&s| s == Some(Amphipod::Amber))
@@ -81,7 +81,7 @@ impl State {
             && self.rooms[3].iter().all(|&s| s == Some(Amphipod::Desert))
     }
 
-    fn possible_next_states(&self) -> Vec<(State, u64)> {
+    fn possible_next_states(&self) -> Vec<(Self, u64)> {
         let mut states = Vec::new();
 
         // Any amphipod already in the hallway will only move into its own room, and only if there
@@ -116,11 +116,7 @@ impl State {
         // entry spot. (They could also directly move into their target room, but we can model that
         // as two steps, stopping in the hallway.)
         for (room_idx, room) in self.rooms.iter().enumerate() {
-            let room_origin = match room {
-                [Some(_), _] => 0,
-                [None, Some(_)] => 1,
-                _ => continue,
-            };
+            let Some(room_origin) = room.iter().position(|s| s.is_some()) else { continue; };
 
             let amphi = room[room_origin].unwrap();
             let hallway_start = Self::room_to_room_entry(room_idx);
@@ -170,16 +166,32 @@ impl State {
     }
 
     // Returns None if the given amphipod cannot currently enter the given room, 0 if it can and
-    // should go into spot 0 in the room, and 1 if it can and should go into spot 1 in the room.
+    // should go into spot 0 in the room, and 1 if it can and should go into spot 1 in the room,
+    // etc.
     fn get_room_target(&self, amphi: Amphipod, room: usize) -> Option<usize> {
         if room != amphi.room_idx() {
             return None;
         }
 
-        match self.rooms[room] {
-            [None, None] => Some(1),
-            [None, Some(a)] if amphi == a => Some(0),
-            _ => None,
+        let first_occupied = self.rooms[room].iter().position(|s| s.is_some());
+        if let Some(first_occupied) = first_occupied {
+            if first_occupied == 0 {
+                return None;
+            }
+
+            // Check that all the amphipods from the first occupied to the end are filled with
+            // the correct amphipods.
+            if self.rooms[room][first_occupied..ROOM_LEN]
+                .iter()
+                .all(|&s| s == Some(amphi))
+            {
+                return Some(first_occupied - 1);
+            } else {
+                return None;
+            }
+        } else {
+            // All empty, take the furthes spot back.
+            return Some(ROOM_LEN - 1);
         }
     }
 
@@ -198,7 +210,7 @@ impl State {
     }
 }
 
-impl Debug for State {
+impl<const ROOM_LEN: usize> Debug for State<ROOM_LEN> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str("#############\n#")?;
         f.write_str(
@@ -218,23 +230,26 @@ impl Debug for State {
                 .intersperse('#')
                 .collect::<String>(),
         )?;
-        f.write_str("###\n  #")?;
-        f.write_str(
-            &self
-                .rooms
-                .iter()
-                .map(|r| r[1])
-                .map(|s| s.map(|amphi| amphi.to_char()).unwrap_or('.'))
-                .intersperse('#')
-                .collect::<String>(),
-        )?;
-        f.write_str("#  \n  #########  \n")
+        f.write_str("###\n")?;
+
+        for i in 1..ROOM_LEN {
+            f.write_str("  #")?;
+            f.write_str(
+                &self
+                    .rooms
+                    .iter()
+                    .map(|r| r[i])
+                    .map(|s| s.map(|amphi| amphi.to_char()).unwrap_or('.'))
+                    .intersperse('#')
+                    .collect::<String>(),
+            )?;
+            f.write_str("#  \n")?;
+        }
+        f.write_str("  #########  \n")
     }
 }
 
-fn parse(input: &str) -> State {
-    let lines = input.lines().collect::<Vec<_>>();
-
+fn parse<const ROOM_LEN: usize>(lines: Vec<&str>) -> State<ROOM_LEN> {
     let parse_amphi = |b| {
         if b == b'.' {
             None
@@ -248,15 +263,13 @@ fn parse(input: &str) -> State {
         hallway[i] = parse_amphi(lines[1].as_bytes()[i + 1]);
     }
 
-    let mut rooms = [[None; 2]; 4];
-    rooms[0][0] = parse_amphi(lines[2].as_bytes()[3]);
-    rooms[0][1] = parse_amphi(lines[3].as_bytes()[3]);
-    rooms[1][0] = parse_amphi(lines[2].as_bytes()[5]);
-    rooms[1][1] = parse_amphi(lines[3].as_bytes()[5]);
-    rooms[2][0] = parse_amphi(lines[2].as_bytes()[7]);
-    rooms[2][1] = parse_amphi(lines[3].as_bytes()[7]);
-    rooms[3][0] = parse_amphi(lines[2].as_bytes()[9]);
-    rooms[3][1] = parse_amphi(lines[3].as_bytes()[9]);
+    let mut rooms = [[None; ROOM_LEN]; 4];
+    for i in 0..ROOM_LEN {
+        rooms[0][i] = parse_amphi(lines[2 + i].as_bytes()[3]);
+        rooms[1][i] = parse_amphi(lines[2 + i].as_bytes()[5]);
+        rooms[2][i] = parse_amphi(lines[2 + i].as_bytes()[7]);
+        rooms[3][i] = parse_amphi(lines[2 + i].as_bytes()[9]);
+    }
 
     State { hallway, rooms }
 }
@@ -265,15 +278,15 @@ fn parse(input: &str) -> State {
 // https://doc.rust-lang.org/std/collections/binary_heap/index.html.
 
 #[derive(Debug, Clone, Eq, PartialEq)]
-struct Node {
+struct Node<const ROOM_LEN: usize> {
     cost: u64,
-    state: State,
+    state: State<ROOM_LEN>,
 }
 
 // The priority queue depends on `Ord`.
 // Explicitly implement the trait so the queue becomes a min-heap
 // instead of a max-heap.
-impl Ord for Node {
+impl<const ROOM_LEN: usize> Ord for Node<ROOM_LEN> {
     fn cmp(&self, other: &Self) -> Ordering {
         // Notice that the we flip the ordering on costs.
         // In case of a tie we compare positions - this step is necessary
@@ -285,13 +298,13 @@ impl Ord for Node {
     }
 }
 
-impl PartialOrd for Node {
+impl<const ROOM_LEN: usize> PartialOrd for Node<ROOM_LEN> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
-fn dijkstra(start: State) -> u64 {
+fn dijkstra<const ROOM_LEN: usize>(start: State<ROOM_LEN>) -> u64 {
     let mut dist = HashMap::new();
     let mut heap = BinaryHeap::new();
 
@@ -329,11 +342,14 @@ fn dijkstra(start: State) -> u64 {
 }
 
 pub fn part1(input: &str) -> u64 {
-    dijkstra(parse(input))
+    dijkstra(parse::<2>(input.lines().collect()))
 }
 
 pub fn part2(input: &str) -> u64 {
-    todo!()
+    let mut lines = input.lines().collect::<Vec<_>>();
+    lines.insert(3, "  #D#C#B#A#");
+    lines.insert(4, "  #D#B#A#C#");
+    dijkstra(parse::<4>(lines))
 }
 
 #[cfg(test)]
@@ -360,12 +376,12 @@ mod tests {
 
     #[test]
     fn p2_example() {
-        assert_eq!(part2(EXAMPLE_INPUT), todo!());
+        assert_eq!(part2(EXAMPLE_INPUT), 44169);
     }
 
     #[test]
     fn p2_input() {
         let input = std::fs::read_to_string("input/day23").expect("reading input file");
-        assert_eq!(part2(&input), todo!());
+        assert_eq!(part2(&input), 43481);
     }
 }
