@@ -22,6 +22,6 @@ example = "1000\n\
           \\n\
           \10000"
 
-elfSums input = map (sum . map read . lines) $ splitOn "\n\n" input
-part1 input = maximum $ elfSums input
-part2 input = sum . take 3 . reverse . sort $ elfSums input
+elfSums = map (sum . map read . lines) . splitOn "\n\n"
+part1 = maximum . elfSums
+part2 = sum . take 3 . reverse . sort . elfSums
