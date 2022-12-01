@@ -18,8 +18,8 @@ set lib_path "src/lib.rs"
 set day_path "src/day$day.rs"
 
 sed -i "/\/\/ MARK:MODULES/i pub mod day$day;" "$lib_path"
-sed -i "/\/\/ MARK:DAYS/i (\"day$day\", 1) => run(&input, aoc2021::day$day::part1)," "$main_path"
-sed -i "/\/\/ MARK:DAYS/i (\"day$day\", 2) => run(&input, aoc2021::day$day::part2)," "$main_path"
+sed -i "/\/\/ MARK:DAYS/i (\"day$day\", 1) => run(&input, aoc$year::day$day::part1)," "$main_path"
+sed -i "/\/\/ MARK:DAYS/i (\"day$day\", 2) => run(&input, aoc$year::day$day::part2)," "$main_path"
 
 cp ../tools/template_day.rs "$day_path"
 sed -i "s/%DAY%/$day/g" "$day_path"
