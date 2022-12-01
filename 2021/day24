@@ -1,0 +1,363 @@
+Instructions:
+    inp a - Read an input value and write it to variable a.
+    add a b - Add the value of a to the value of b, then store the result in variable a.
+    mul a b - Multiply the value of a by the value of b, then store the result in variable a.
+    div a b - Divide the value of a by the value of b, truncate the result to an integer, then store the result in variable a. (Here, "truncate" means to round the value toward zero.)
+    mod a b - Divide the value of a by the value of b, then store the remainder in variable a. (This is also called the modulo operation.)
+    eql a b - If the value of a and b are equal, then store the value 1 in variable a. Otherwise, store the value 0 in variable a.
+
+Blocks of 18 Instructions:
+
+  inp w      inp w      inp w      inp w      inp w      inp w      inp w    
+  mul x 0    mul x 0    mul x 0    mul x 0    mul x 0    mul x 0    mul x 0  
+  add x z    add x z    add x z    add x z    add x z    add x z    add x z  
+  mod x 26   mod x 26   mod x 26   mod x 26   mod x 26   mod x 26   mod x 26 
+  div z 1    div z 1    div z 1    div z 1    div z 26   div z 26   div z 26 
+  add x 13   add x 15   add x 15   add x 11   add x -16  add x -11  add x -6 
+  eql x w    eql x w    eql x w    eql x w    eql x w    eql x w    eql x w  
+  eql x 0    eql x 0    eql x 0    eql x 0    eql x 0    eql x 0    eql x 0  
+  mul y 0    mul y 0    mul y 0    mul y 0    mul y 0    mul y 0    mul y 0  
+  add y 25   add y 25   add y 25   add y 25   add y 25   add y 25   add y 25 
+  mul y x    mul y x    mul y x    mul y x    mul y x    mul y x    mul y x  
+  add y 1    add y 1    add y 1    add y 1    add y 1    add y 1    add y 1  
+  mul z y    mul z y    mul z y    mul z y    mul z y    mul z y    mul z y  
+  mul y 0    mul y 0    mul y 0    mul y 0    mul y 0    mul y 0    mul y 0  
+  add y w    add y w    add y w    add y w    add y w    add y w    add y w  
+  add y 5    add y 14   add y 15   add y 16   add y 8    add y 9    add y 2  
+  mul y x    mul y x    mul y x    mul y x    mul y x    mul y x    mul y x  
+  add z y    add z y    add z y    add z y    add z y    add z y    add z y  
+
+  inp w      inp w      inp w      inp w      inp w      inp w     inp w
+  mul x 0    mul x 0    mul x 0    mul x 0    mul x 0    mul x 0   mul x 0
+  add x z    add x z    add x z    add x z    add x z    add x z   add x z
+  mod x 26   mod x 26   mod x 26   mod x 26   mod x 26   mod x 26  mod x 26
+  div z 1    div z 1    div z 26   div z 26   div z 26   div z 1   div z 26
+  add x 11   add x 10   add x -10  add x -8   add x -11  add x 12  add x -15
+  eql x w    eql x w    eql x w    eql x w    eql x w    eql x w   eql x w
+  eql x 0    eql x 0    eql x 0    eql x 0    eql x 0    eql x 0   eql x 0
+  mul y 0    mul y 0    mul y 0    mul y 0    mul y 0    mul y 0   mul y 0
+  add y 25   add y 25   add y 25   add y 25   add y 25   add y 25  add y 25
+  mul y x    mul y x    mul y x    mul y x    mul y x    mul y x   mul y x
+  add y 1    add y 1    add y 1    add y 1    add y 1    add y 1   add y 1
+  mul z y    mul z y    mul z y    mul z y    mul z y    mul z y   mul z y
+  mul y 0    mul y 0    mul y 0    mul y 0    mul y 0    mul y 0   mul y 0
+  add y w    add y w    add y w    add y w    add y w    add y w   add y w
+  add y 13   add y 16   add y 6    add y 6    add y 9    add y 11  add y 5
+  mul y x    mul y x    mul y x    mul y x    mul y x    mul y x   mul y x
+  add z y    add z y    add z y    add z y    add z y    add z y   add z y
+
+So, a block template would be:
+  inp w			// w = inp[i]
+  mul x 0       // 
+  add x z       // 
+  mod x 26      // x = z mod 26
+  div z 1 or 26 //
+  add x $NUM1   // x += $NUM1
+  eql x w       //
+  eql x 0       // x = x != w
+  mul y 0       //
+  add y 25      //
+  mul y x       // 
+  add y 1       // y = 25 * x + 1
+  mul z y       // z = z * y
+  mul y 0       //
+  add y w       //
+  add y $NUM2   //
+  mul y x       // y = x * (w + $NUM2)
+  add z y       // z = z + y
+
+Writing it out in Rust-ish pseudocode:
+
+$NUM1 = [13, 15, 15, 11, -16, -11, -6, 11, 10, -10, -8, -11, 12, -15];
+$NUM2 = [5, 14, 15, 16, 8, 9, 2, 13, 16, 6, 6, 9, 11, 5];
+
+fn should_div_z(i: usize) -> bool {
+	i == 4 || 5 || 6 || 9 || 10 || 11 || 13
+}
+
+fn is_valid_monad_numer(input: [u8; 14]) -> bool {
+	let mut acc = 0;
+	for i in 0..14 {
+		// If we entered the last if in the last iteration, this means
+		// x = ((input[i-1] + $NUM2[i-1]) mod 26) + $NUM1[i].
+		let x = (acc mod 26) + $NUM1[i];
+
+		if should_div_z(i) {
+			acc /= 26;
+		}
+
+		if x != input[i] {
+			acc = acc * 26;
+			acc = acc + input[i] + $NUM2[i];
+		}
+	}
+	return acc == 0;
+}
+
+Original MONAD program:
+  inp w
+  mul x 0
+  add x z
+  mod x 26
+  div z 1
+  add x 13
+  eql x w
+  eql x 0
+  mul y 0
+  add y 25
+  mul y x
+  add y 1
+  mul z y
+  mul y 0
+  add y w
+  add y 5
+  mul y x
+  add z y
+
+  inp w
+  mul x 0
+  add x z
+  mod x 26
+  div z 1
+  add x 15
+  eql x w
+  eql x 0
+  mul y 0
+  add y 25
+  mul y x
+  add y 1
+  mul z y
+  mul y 0
+  add y w
+  add y 14
+  mul y x
+  add z y
+
+  inp w
+  mul x 0
+  add x z
+  mod x 26
+  div z 1
+  add x 15
+  eql x w
+  eql x 0
+  mul y 0
+  add y 25
+  mul y x
+  add y 1
+  mul z y
+  mul y 0
+  add y w
+  add y 15
+  mul y x
+  add z y
+
+  inp w
+  mul x 0
+  add x z
+  mod x 26
+  div z 1
+  add x 11
+  eql x w
+  eql x 0
+  mul y 0
+  add y 25
+  mul y x
+  add y 1
+  mul z y
+  mul y 0
+  add y w
+  add y 16
+  mul y x
+  add z y
+
+  inp w
+  mul x 0
+  add x z
+  mod x 26
+  div z 26
+  add x -16
+  eql x w
+  eql x 0
+  mul y 0
+  add y 25
+  mul y x
+  add y 1
+  mul z y
+  mul y 0
+  add y w
+  add y 8
+  mul y x
+  add z y
+
+  inp w
+  mul x 0
+  add x z
+  mod x 26
+  div z 26
+  add x -11
+  eql x w
+  eql x 0
+  mul y 0
+  add y 25
+  mul y x
+  add y 1
+  mul z y
+  mul y 0
+  add y w
+  add y 9
+  mul y x
+  add z y
+
+  inp w
+  mul x 0
+  add x z
+  mod x 26
+  div z 26
+  add x -6
+  eql x w
+  eql x 0
+  mul y 0
+  add y 25
+  mul y x
+  add y 1
+  mul z y
+  mul y 0
+  add y w
+  add y 2
+  mul y x
+  add z y
+
+  inp w
+  mul x 0
+  add x z
+  mod x 26
+  div z 1
+  add x 11
+  eql x w
+  eql x 0
+  mul y 0
+  add y 25
+  mul y x
+  add y 1
+  mul z y
+  mul y 0
+  add y w
+  add y 13
+  mul y x
+  add z y
+
+  inp w
+  mul x 0
+  add x z
+  mod x 26
+  div z 1
+  add x 10
+  eql x w
+  eql x 0
+  mul y 0
+  add y 25
+  mul y x
+  add y 1
+  mul z y
+  mul y 0
+  add y w
+  add y 16
+  mul y x
+  add z y
+
+  inp w
+  mul x 0
+  add x z
+  mod x 26
+  div z 26
+  add x -10
+  eql x w
+  eql x 0
+  mul y 0
+  add y 25
+  mul y x
+  add y 1
+  mul z y
+  mul y 0
+  add y w
+  add y 6
+  mul y x
+  add z y
+
+  inp w
+  mul x 0
+  add x z
+  mod x 26
+  div z 26
+  add x -8
+  eql x w
+  eql x 0
+  mul y 0
+  add y 25
+  mul y x
+  add y 1
+  mul z y
+  mul y 0
+  add y w
+  add y 6
+  mul y x
+  add z y
+
+  inp w
+  mul x 0
+  add x z
+  mod x 26
+  div z 26
+  add x -11
+  eql x w
+  eql x 0
+  mul y 0
+  add y 25
+  mul y x
+  add y 1
+  mul z y
+  mul y 0
+  add y w
+  add y 9
+  mul y x
+  add z y
+
+  inp w
+  mul x 0
+  add x z
+  mod x 26
+  div z 1
+  add x 12
+  eql x w
+  eql x 0
+  mul y 0
+  add y 25
+  mul y x
+  add y 1
+  mul z y
+  mul y 0
+  add y w
+  add y 11
+  mul y x
+  add z y
+
+  inp w
+  mul x 0
+  add x z
+  mod x 26
+  div z 26
+  add x -15
+  eql x w
+  eql x 0
+  mul y 0
+  add y 25
+  mul y x
+  add y 1
+  mul z y
+  mul y 0
+  add y w
+  add y 5
+  mul y x
+  add z y
+
