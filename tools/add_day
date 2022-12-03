@@ -33,4 +33,5 @@ source "../token"
 
 set url "https://adventofcode.com/$year/day/$day/input"
 
-curl --cookie "session=$token;" "$url" -o "input/day$day"
+curl -A "github.com/spaarmann/advent-of-code by git@s-paarmann.de" --cookie "session=$token;" \
+	"$url" -o "input/day$day"
