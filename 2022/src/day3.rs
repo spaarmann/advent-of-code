@@ -6,38 +6,25 @@ fn char_to_prio(b: u8) -> u8 {
     }
 }
 
+fn bitset(s: &str) -> u64 {
+    s.bytes()
+        .map(|b| char_to_prio(b))
+        .map(|p| 1 << p)
+        .fold(0, |a, b| a | b)
+}
+
 fn parse(input: &str) -> impl Iterator<Item = (u64, u64)> + '_ {
     input.lines().map(|line| {
-        let item_count = line.len() / 2;
-
-        let mut left = 0u64;
-        for &b in &line.as_bytes()[..item_count] {
-            left |= 1 << char_to_prio(b);
-        }
-
-        let mut right = 0u64;
-        for &b in &line.as_bytes()[item_count..] {
-            right |= 1 << char_to_prio(b);
-        }
-
-        (left, right)
+        let (left, right) = line.split_at(line.len() / 2);
+        (bitset(left), bitset(right))
     })
 }
 
 pub fn part1(input: &str) -> u64 {
-    let mut sum = 0;
-
-    for (left, right) in parse(input) {
-        let mut both = left & right;
-        for i in 0..=52 {
-            if (both & 1) != 0 {
-                sum += i;
-            }
-            both = both >> 1;
-        }
-    }
-
-    sum
+    parse(input)
+        .map(|(l, r)| l & r)
+        .map(|both| both.trailing_zeros() as u64)
+        .sum()
 }
 
 pub fn part2(input: &str) -> u64 {
