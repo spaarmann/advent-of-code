@@ -66,8 +66,7 @@ pub fn part2(input: &str) -> String {
 
     for instr in instructions {
         let [source, dest] = stacks.get_many_mut([instr.from - 1, instr.to - 1]).unwrap();
-        dest.extend_from_slice(&source[source.len() - instr.count..]);
-        source.truncate(source.len() - instr.count);
+        dest.extend(source.drain(source.len() - instr.count..));
     }
 
     stacks.into_iter().map(|s| *s.last().unwrap()).collect()
