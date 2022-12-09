@@ -27,30 +27,14 @@ fn get_head_positions(input: &str) -> impl Iterator<Item = (i64, i64)> + '_ {
 }
 
 fn get_new_tail_position(tail: (i64, i64), head: (i64, i64)) -> (i64, i64) {
-    // tail + diff = head
     let diff = (head.0 - tail.0, head.1 - tail.1);
-    let tail_move = match diff {
-        // Overlapping or touching
-        (0, 0) | (1, 0) | (-1, 0) | (0, 1) | (0, -1) | (1, 1) | (1, -1) | (-1, 1) | (-1, -1) => {
-            (0, 0)
-        }
-        // In same row or column
-        (2, 0) => (1, 0),
-        (-2, 0) => (-1, 0),
-        (0, 2) => (0, 1),
-        (0, -2) => (0, -1),
-        // Diagonal moves
-        (1, 2) | (2, 1) | (2, 2) => (1, 1),
-        (1, -2) | (2, -1) | (2, -2) => (1, -1),
-        (-1, 2) | (-2, 1) | (-2, 2) => (-1, 1),
-        (-1, -2) | (-2, -1) | (-2, -2) => (-1, -1),
-        _ => panic!(
-            "tail can't keep up! tail is {:?} and head is {:?}",
-            tail, head
-        ),
-    };
+    let abs_diff = (diff.0.abs(), diff.1.abs());
 
-    (tail.0 + tail_move.0, tail.1 + tail_move.1)
+    if abs_diff.0 > 1 || abs_diff.1 > 1 {
+        (tail.0 + diff.0.signum(), tail.1 + diff.1.signum())
+    } else {
+        tail
+    }
 }
 
 pub fn part1(input: &str) -> u64 {
