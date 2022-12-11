@@ -31,6 +31,8 @@ fn main() {
         ("day9", 2) => run(&input, aoc2022::day9::part2),
         ("day10", 1) => run(&input, aoc2022::day10::part1),
         ("day10", 2) => run(&input, aoc2022::day10::part2),
+        ("day11", 1) => run(&input, aoc2022::day11::part1),
+        ("day11", 2) => run(&input, aoc2022::day11::part2),
         // MARK:DAYS
         _ => panic!("day not implemented!"),
     }
