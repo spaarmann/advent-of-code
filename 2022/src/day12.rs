@@ -66,11 +66,7 @@ impl Map {
         panic!("No end found!")
     }
 
-    fn is_end(&self, x: i64, y: i64) -> bool {
-        self.val(x, y) == b'E'
-    }
-
-    fn shortest_distance_to_end(&self, start: (i64, i64)) -> Option<u64> {
+    fn shortest_distance_to(&self, start: (i64, i64), target: u8, forwards: bool) -> Option<u64> {
         let mut visited = vec![false; self.grid.len()];
         let mut parents = vec![(-1i64, -1i64); self.grid.len()];
         let mut queue = VecDeque::new();
@@ -79,7 +75,7 @@ impl Map {
         queue.push_back(start);
 
         while let Some((x, y)) = queue.pop_front() {
-            if self.is_end(x, y) {
+            if self.val(x, y) == target {
                 let mut steps = 0;
                 let mut cx = x;
                 let mut cy = y;
@@ -94,7 +90,10 @@ impl Map {
             for offset in [(-1, 0), (1, 0), (0, -1), (0, 1)] {
                 let nx = x + offset.0;
                 let ny = y + offset.1;
-                if self.in_bounds(nx, ny) && self.height(nx, ny) <= height + 1 {
+                if self.in_bounds(nx, ny)
+                    && ((forwards && self.height(nx, ny) <= height + 1)
+                        || (!forwards && self.height(nx, ny) + 1 >= height))
+                {
                     if !visited[self.idx(nx, ny)] {
                         visited[self.idx(nx, ny)] = true;
                         parents[self.idx(nx, ny)] = (x, y);
@@ -110,26 +109,14 @@ impl Map {
 
 pub fn part1(input: &str) -> u64 {
     let map = Map::parse(input);
-    map.shortest_distance_to_end(map.start()).unwrap()
+    map.shortest_distance_to(map.start(), b'E', true).unwrap()
 }
 
 pub fn part2(input: &str) -> u64 {
     let map = Map::parse(input);
-
-    let mut starts = Vec::new();
-    for x in 0..map.width as i64 {
-        for y in 0..map.height as i64 {
-            if map.height(x, y) == 0 {
-                starts.push((x, y));
-            }
-        }
-    }
-
-    starts
-        .into_iter()
-        .filter_map(|start| map.shortest_distance_to_end(start))
-        .min()
-        .unwrap()
+    // Technically this should check for 'a' or 'S' instead of just 'a', but in practice the S is
+    // not actually going to have the shortest path.
+    map.shortest_distance_to(map.end(), b'a', false).unwrap()
 }
 
 #[cfg(test)]
