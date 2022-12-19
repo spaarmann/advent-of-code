@@ -26,12 +26,4 @@ sed -i "s/%DAY%/$day/g" "$day_path"
 
 cargo fmt
 
-
-echo "Downloading input for day $day..."
-
-source "../token"
-
-set url "https://adventofcode.com/$year/day/$day/input"
-
-curl -A "github.com/spaarmann/advent-of-code by git@s-paarmann.de" --cookie "session=$token;" \
-	"$url" -o "input/day$day"
+../tools/download_input $day

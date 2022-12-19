@@ -1,0 +1,21 @@
+#!/usr/bin/env fish
+
+# Parse command line args
+set argc (count $argv)
+if test "$argc" != 1
+	echo "Usage: add_day <day_number>"
+	exit 1
+else
+	set day "$argv[1]"
+end
+
+set year (string split -f 2 -r -m1 / (pwd))
+
+echo "Downloading input for day $day..."
+
+source "../token"
+
+set url "https://adventofcode.com/$year/day/$day/input"
+
+curl -A "github.com/spaarmann/advent-of-code by git@s-paarmann.de" --cookie "session=$token;" \
+	"$url" -o "input/day$day"
