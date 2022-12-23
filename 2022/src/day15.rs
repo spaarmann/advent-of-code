@@ -1,4 +1,4 @@
-use std::{collections::HashSet, ops::Range};
+use std::ops::Range;
 
 use itertools::Itertools;
 use lazy_static::lazy_static;
@@ -69,8 +69,49 @@ pub fn part1(input: &str) -> u64 {
     calc_part1(input, 2000000)
 }
 
+fn calc_part2(input: &str, max_coord: i64) -> u64 {
+    let input = parse(input).collect_vec();
+
+    for row in 0..max_coord {
+        let ranges = input
+            .iter()
+            .map(|(sensor, beacon)| {
+                let manhattan_dist = (beacon - sensor).abs().sum();
+                let to_row = (sensor.y - row).abs();
+                let remaining_dist = manhattan_dist - to_row;
+                (sensor.x - remaining_dist)..(sensor.x + remaining_dist)
+            })
+            .map(|r| r.start.clamp(0, max_coord)..r.end.clamp(0, max_coord))
+            .sorted_by(|a, b| a.start.cmp(&b.start).then(a.end.cmp(&b.end)));
+
+        let mut union_ranges = Vec::new();
+        for range in ranges {
+            if union_ranges
+                .last()
+                .map(|r: &Range<i64>| r.end >= range.start - 1)
+                .unwrap_or(false)
+            {
+                let last = union_ranges.last_mut().unwrap();
+                last.end = last.end.max(range.end);
+            } else {
+                union_ranges.push(range);
+            }
+        }
+
+        if union_ranges.len() != 1 {
+            return ((union_ranges[0].end + 1) * 4000000 + row) as u64;
+        }
+    }
+
+    panic!("did not find any empty spot")
+}
+
+pub fn part2_example(input: &str) -> u64 {
+    calc_part2(input, 20)
+}
+
 pub fn part2(input: &str) -> u64 {
-    todo!()
+    calc_part2(input, 4000000)
 }
 
 #[cfg(test)]
@@ -105,12 +146,13 @@ Sensor at x=20, y=1: closest beacon is at x=15, y=3";
 
     #[test]
     fn p2_example() {
-        assert_eq!(part2(EXAMPLE_INPUT), todo!());
+        assert_eq!(part2_example(EXAMPLE_INPUT), 56000011);
     }
 
     #[test]
+    #[ignore = "too slow"] // TODO
     fn p2_input() {
         let input = std::fs::read_to_string("input/day15").expect("reading input file");
-        assert_eq!(part2(&input), todo!());
+        assert_eq!(part2(&input), 10852583132904);
     }
 }
