@@ -18,7 +18,7 @@ pub fn part2(input: &str) -> u64 {
         .replace("six", "s6x")
         .replace("seven", "s7n")
         .replace("eight", "e8t")
-        .replace("nine", "n9n"))
+        .replace("nine", "n9e"))
 }
 
 #[cfg(test)]
