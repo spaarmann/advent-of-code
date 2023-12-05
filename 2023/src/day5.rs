@@ -63,9 +63,47 @@ pub fn part1(input: &str) -> u64 {
 }
 
 pub fn part2(input: &str) -> u64 {
-    // I guess do it for whole intervals, splitting them up everytime they cross a mapping boundary?
-    // If that happens? (Probably)
-    todo!()
+    let (seed_ranges, maps) = parse(input);
+
+    // TODO: Could probably be more efficient by sorting the ranges per map
+
+    let mut intervals = seed_ranges
+        .into_iter()
+        .array_chunks::<2>()
+        .collect::<Vec<[i64; 2]>>();
+    let mut intervals_next = Vec::new();
+
+    for map in &maps {
+        'intervals: while let Some([start, count]) = intervals.pop() {
+            for range in map {
+                if start >= range.src && start < range.src + range.len {
+                    // At least partial overlap. Map all the ones mapped by this
+                    // range; re-add remainder of interval to work list.
+                    let start_in_range = start - range.src;
+                    let end_in_range = start_in_range + count - 1;
+                    if end_in_range < range.len {
+                        // Whole interval fits.
+                        intervals_next.push([range.dst + start_in_range, count]);
+                    } else {
+                        // Part of interval fits.
+                        let len_matching = range.len - start_in_range;
+                        // Map that part.
+                        intervals_next.push([range.dst + start_in_range, len_matching]);
+                        // Re-add the remaining part.
+                        intervals.push([start + len_matching, count - len_matching]);
+                    }
+
+                    continue 'intervals;
+                }
+            }
+
+            intervals_next.push([start, count]);
+        }
+
+        (intervals_next, intervals) = (intervals, intervals_next);
+    }
+
+    intervals.into_iter().map(|[start, _]| start).min().unwrap() as u64
 }
 
 #[cfg(test)]

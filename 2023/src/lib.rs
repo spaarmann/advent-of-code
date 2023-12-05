@@ -4,6 +4,7 @@
 #![feature(get_many_mut)]
 #![feature(let_chains)]
 #![feature(array_windows)]
+#![feature(array_chunks)]
 #![feature(pattern)]
 
 mod util;
