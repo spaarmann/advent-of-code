@@ -1,3 +1,5 @@
+use itertools::Itertools;
+
 fn compute(races: impl Iterator<Item = (i64, i64)>) -> u64 {
     races
         .map(|(t, r)| {
@@ -23,32 +25,31 @@ fn compute(races: impl Iterator<Item = (i64, i64)>) -> u64 {
 }
 
 pub fn part1(input: &str) -> u64 {
-    let mut parsed_lines = input.lines().map(|l| {
-        l.split_once(":")
-            .unwrap()
-            .1
-            .split_whitespace()
-            .map(|n| n.parse::<i64>().unwrap())
-    });
-    let times = parsed_lines.next().unwrap();
-    let records = parsed_lines.next().unwrap();
+    let (times, records) = input
+        .lines()
+        .map(|l| {
+            l.split_ascii_whitespace()
+                .skip(1)
+                .map(|n| n.parse::<i64>().unwrap())
+        })
+        .collect_tuple()
+        .unwrap();
 
     compute(times.zip(records))
 }
 
 pub fn part2(input: &str) -> u64 {
-    let mut parsed_lines = input.lines().map(|l| {
-        l.split_once(":")
-            .unwrap()
-            .1
-            .chars()
-            .filter(char::is_ascii_digit)
-            .collect::<String>()
-            .parse::<i64>()
-            .unwrap()
-    });
-    let time = parsed_lines.next().unwrap();
-    let record = parsed_lines.next().unwrap();
+    let (time, record) = input
+        .lines()
+        .map(|l| {
+            l.split_ascii_whitespace()
+                .skip(1)
+                .collect::<String>()
+                .parse::<i64>()
+                .unwrap()
+        })
+        .collect_tuple()
+        .unwrap();
 
     compute(std::iter::once((time, record)))
 }
