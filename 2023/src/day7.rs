@@ -12,27 +12,43 @@ fn parse(input: &str) -> impl Iterator<Item = (&str, i64)> + '_ {
     })
 }
 
-fn type_hand(hand: &str) -> i64 {
+fn group_hand(hand: &str, separate: Option<char>) -> (Vec<i32>, i32) {
     let mut counts = hand
         .chars()
-        .map(|c| (c, 1))
+        .filter_map(|c| {
+            if Some(c) != separate {
+                Some((c, 1))
+            } else {
+                None
+            }
+        })
         .into_grouping_map()
         .sum()
         .into_values()
         .collect_vec();
     counts.sort_by(|a, b| b.cmp(a));
 
-    if let [5] = &counts[..] {
+    let separated = hand.chars().filter(|c| Some(*c) == separate).count() as i32;
+
+    (counts, separated)
+}
+
+fn type_hand(hand: &str, with_jokers: bool) -> i64 {
+    let (counts, jokers) = group_hand(hand, if with_jokers { Some('J') } else { None });
+
+    let first = *counts.get(0).unwrap_or(&0);
+    let second = *counts.get(1).unwrap_or(&0);
+    if first + jokers == 5 {
         6 // five of a kind
-    } else if let [4, _] = &counts[..] {
+    } else if first + jokers == 4 {
         5 // four of a kind
-    } else if let [3, 2] = &counts[..] {
+    } else if first + jokers >= 3 && second + (jokers - (3 - first)) >= 2 {
         4 // full house
-    } else if let [3, 1, 1] = &counts[..] {
+    } else if first + jokers == 3 {
         3 // three of a kind
-    } else if let [2, 2, 1] = &counts[..] {
+    } else if first + jokers >= 2 && second + (jokers - (2 - first)) >= 2 {
         2 // two pair
-    } else if let [2, 1, 1, 1] = &counts[..] {
+    } else if first + jokers >= 2 {
         1 // one pair
     } else {
         // high card
@@ -40,15 +56,22 @@ fn type_hand(hand: &str) -> i64 {
     }
 }
 
-fn cmp_hands((lt, lh): (i64, &str), (rt, rh): (i64, &str)) -> Ordering {
+fn cmp_hands((lt, lh): (i64, &str), (rt, rh): (i64, &str), with_jokers: bool) -> Ordering {
     if lt > rt {
         Ordering::Greater
     } else if lt < rt {
         Ordering::Less
     } else {
+        let card_rank = |c| {
+            if with_jokers && c == 'J' {
+                -1
+            } else {
+                LABELS.find(c).unwrap() as i64
+            }
+        };
         for i in 0..5 {
-            let lf = LABELS.find(lh.as_bytes()[i] as char).unwrap();
-            let rf = LABELS.find(rh.as_bytes()[i] as char).unwrap();
+            let lf = card_rank(lh.as_bytes()[i] as char);
+            let rf = card_rank(rh.as_bytes()[i] as char);
             let o = lf.cmp(&rf);
             if o != Ordering::Equal {
                 return o;
@@ -58,13 +81,13 @@ fn cmp_hands((lt, lh): (i64, &str), (rt, rh): (i64, &str)) -> Ordering {
     }
 }
 
-pub fn part1(input: &str) -> u64 {
+fn solve(input: &str, with_jokers: bool) -> u64 {
     let mut hands = parse(input)
-        .map(|(hand, bid)| (type_hand(hand), hand, bid))
+        .map(|(hand, bid)| (type_hand(hand, with_jokers), hand, bid))
         .collect_vec();
 
     // Rank hands
-    hands.sort_by(|l, r| cmp_hands((l.0, l.1), (r.0, r.1)));
+    hands.sort_by(|l, r| cmp_hands((l.0, l.1), (r.0, r.1), with_jokers));
 
     hands
         .into_iter()
@@ -73,8 +96,12 @@ pub fn part1(input: &str) -> u64 {
         .sum::<i64>() as u64
 }
 
+pub fn part1(input: &str) -> u64 {
+    solve(input, false)
+}
+
 pub fn part2(input: &str) -> u64 {
-    todo!()
+    solve(input, true)
 }
 
 #[cfg(test)]
@@ -106,6 +133,6 @@ QQQJA 483";
     #[test]
     fn p2_input() {
         let input = std::fs::read_to_string("input/day7").expect("reading input file");
-        assert_eq!(part2(&input), todo!());
+        assert_eq!(part2(&input), 253362743);
     }
 }
