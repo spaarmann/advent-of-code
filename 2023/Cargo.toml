@@ -12,3 +12,4 @@ lazy_static = "1.4.0"
 miette = { version = "5.5.0", features = ["fancy"] }
 nalgebra = "0.31.4"
 regex = "1.7.0"
+num = "0.4"
