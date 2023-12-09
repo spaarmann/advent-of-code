@@ -6,27 +6,19 @@ fn parse(input: &str) -> impl Iterator<Item = impl DoubleEndedIterator<Item = i6
         .map(|l| l.split_whitespace().map(|n| n.parse().unwrap()))
 }
 
+fn iterated_diffs(history: impl Iterator<Item = i64>) -> impl Iterator<Item = Vec<i64>> {
+    std::iter::successors(Some(history.collect_vec()), |prev| {
+        let diffs = prev.array_windows().map(|[a, b]| b - a).collect_vec();
+        diffs.iter().any(|&n| n != 0).then_some(diffs)
+    })
+}
+
 fn solve(scan_data: impl Iterator<Item = impl Iterator<Item = i64>>) -> u64 {
     scan_data
         .map(|history| {
-            let mut nums = vec![history.collect_vec()];
-            while let Some(last) = nums.last()
-                && !last.iter().all(|&n| n == last[0])
-            {
-                nums.push(last.array_windows().map(|[a, b]| b - a).collect_vec());
-            }
-
-            for i in (0..nums.len()).rev() {
-                let to_add = if i == nums.len() - 1 {
-                    0
-                } else {
-                    *nums[i + 1].last().unwrap()
-                };
-                let last = *nums[i].last().unwrap();
-                nums[i].push(last + to_add);
-            }
-
-            *nums[0].last().unwrap()
+            iterated_diffs(history)
+                .map(|seq| *seq.last().unwrap())
+                .sum::<i64>()
         })
         .sum::<i64>() as u64
 }
