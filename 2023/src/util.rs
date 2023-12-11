@@ -35,8 +35,8 @@ pub fn zip_arr<T, const N: usize>(
 #[derive(Clone, Debug)]
 pub struct Grid<T> {
     grid: Vec<T>,
-    width: usize,
-    height: usize,
+    pub width: usize,
+    pub height: usize,
 }
 
 impl<T: From<char>> Grid<T> {
@@ -76,12 +76,30 @@ impl<T> Grid<T> {
         }
         None
     }
+
+    pub fn positions<'a, P>(&'a self, mut predicate: P) -> impl Iterator<Item = (i64, i64)> + 'a
+    where
+        P: FnMut(&T) -> bool,
+        P: 'a,
+    {
+        (0..self.height)
+            .flat_map(|y| (0..self.width).map(move |x| (x, y)))
+            .map(|(x, y)| (x as i64, y as i64))
+            .filter(move |&(x, y)| predicate(&self[(x, y)]))
+    }
 }
 
 impl<T> Index<(i64, i64)> for Grid<T> {
     type Output = T;
     fn index(&self, (x, y): (i64, i64)) -> &T {
         &self.grid[(y as usize) * self.width + x as usize]
+    }
+}
+
+impl<T> Index<(usize, usize)> for Grid<T> {
+    type Output = T;
+    fn index(&self, (x, y): (usize, usize)) -> &T {
+        &self.grid[y * self.width + x]
     }
 }
 
