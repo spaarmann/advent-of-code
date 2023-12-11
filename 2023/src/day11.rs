@@ -2,7 +2,7 @@ use itertools::Itertools;
 
 use crate::util::Grid;
 
-pub fn part1(input: &str) -> u64 {
+fn solve(input: &str, expansion: usize) -> u64 {
     let grid = Grid::<char>::from_char_grid(input);
 
     let mut galaxies = grid.positions(|&c| c == '#').collect_vec();
@@ -11,15 +11,15 @@ pub fn part1(input: &str) -> u64 {
 
     for (empty_idx, empty_y) in empty_rows.enumerate() {
         for galaxy in &mut galaxies {
-            if galaxy.1 > (empty_y + empty_idx) as i64 {
-                galaxy.1 += 1;
+            if galaxy.1 as usize > (empty_y + empty_idx * (expansion - 1)) {
+                galaxy.1 += (expansion - 1) as i64;
             }
         }
     }
     for (empty_idx, empty_x) in empty_cols.enumerate() {
         for galaxy in &mut galaxies {
-            if galaxy.0 > (empty_x + empty_idx) as i64 {
-                galaxy.0 += 1;
+            if galaxy.0 as usize > (empty_x + empty_idx * (expansion - 1)) {
+                galaxy.0 += (expansion - 1) as i64;
             }
         }
     }
@@ -31,8 +31,12 @@ pub fn part1(input: &str) -> u64 {
         .sum()
 }
 
+pub fn part1(input: &str) -> u64 {
+    solve(input, 2)
+}
+
 pub fn part2(input: &str) -> u64 {
-    todo!()
+    solve(input, 1000000)
 }
 
 #[cfg(test)]
@@ -63,13 +67,18 @@ mod tests {
     }
 
     #[test]
-    fn p2_example() {
-        assert_eq!(part2(EXAMPLE_INPUT), todo!());
+    fn p2_example1() {
+        assert_eq!(solve(EXAMPLE_INPUT, 10), 1030);
+    }
+
+    #[test]
+    fn p2_example2() {
+        assert_eq!(solve(EXAMPLE_INPUT, 100), 8410);
     }
 
     #[test]
     fn p2_input() {
         let input = std::fs::read_to_string("input/day11").expect("reading input file");
-        assert_eq!(part2(&input), todo!());
+        assert_eq!(part2(&input), 447073334102);
     }
 }
