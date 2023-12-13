@@ -87,6 +87,14 @@ impl<T> Grid<T> {
             .map(|(x, y)| (x as i64, y as i64))
             .filter(move |&(x, y)| predicate(&self[(x, y)]))
     }
+
+    pub fn rows(&self) -> impl Iterator<Item = impl Iterator<Item = &T> + '_> {
+        (0..self.height).map(move |y| (0..self.width).map(move |x| &self[(x, y)]))
+    }
+
+    pub fn cols(&self) -> impl Iterator<Item = impl Iterator<Item = &T> + '_> {
+        (0..self.width).map(move |x| (0..self.height).map(move |y| &self[(x, y)]))
+    }
 }
 
 impl<T> Index<(i64, i64)> for Grid<T> {
