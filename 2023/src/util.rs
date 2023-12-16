@@ -3,6 +3,8 @@ use std::{
     str::{pattern::Pattern, FromStr},
 };
 
+use itertools::Itertools;
+
 pub trait SplitAndParse {
     fn split_and_parse<'a, T: FromStr, P: Pattern<'a>>(
         &'a self,
@@ -32,7 +34,7 @@ pub fn zip_arr<T, const N: usize>(
     })
 }
 
-#[derive(Clone, Debug)]
+#[derive(PartialEq, Eq, Hash, Debug)]
 pub struct Grid<T> {
     grid: Vec<T>,
     pub width: usize,
@@ -55,6 +57,39 @@ impl<T: From<char>> Grid<T> {
             width,
             height,
         }
+    }
+}
+
+impl<T> Grid<T>
+where
+    for<'a> &'a T: Into<char>,
+{
+    #[allow(dead_code)] // Usually only used temporarily for debugging
+    pub fn to_char_grid(&self) -> String {
+        (0..self.height)
+            .map(|y| {
+                self.grid[y * self.width..(y + 1) * self.width]
+                    .iter()
+                    .map(|t| <&T as Into<char>>::into(t))
+                    .collect::<String>()
+            })
+            .join("\n")
+    }
+}
+
+impl<T: Clone> Clone for Grid<T> {
+    fn clone(&self) -> Grid<T> {
+        Self {
+            width: self.width,
+            height: self.height,
+            grid: self.grid.clone(),
+        }
+    }
+
+    fn clone_from(&mut self, source: &Self) {
+        self.width = source.width;
+        self.height = source.height;
+        self.grid.clone_from(&source.grid);
     }
 }
 
