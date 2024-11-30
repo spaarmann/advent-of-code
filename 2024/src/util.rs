@@ -1,22 +1,16 @@
 use std::{
     ops::{Index, IndexMut, Range},
-    str::{pattern::Pattern, FromStr},
+    str::{FromStr, pattern::Pattern},
 };
 
 use itertools::Itertools;
 
 pub trait SplitAndParse {
-    fn split_and_parse<'a, T: FromStr, P: Pattern<'a>>(
-        &'a self,
-        pattern: P,
-    ) -> Result<Vec<T>, T::Err>;
+    fn split_and_parse<'a, T: FromStr, P: Pattern>(&'a self, pattern: P) -> Result<Vec<T>, T::Err>;
 }
 
 impl SplitAndParse for str {
-    fn split_and_parse<'a, T: FromStr, P: Pattern<'a>>(
-        &'a self,
-        pattern: P,
-    ) -> Result<Vec<T>, T::Err> {
+    fn split_and_parse<'a, T: FromStr, P: Pattern>(&'a self, pattern: P) -> Result<Vec<T>, T::Err> {
         self.split(pattern).map(|c| c.parse()).collect()
     }
 }

@@ -1,5 +1,4 @@
 #![feature(assert_matches)]
-#![feature(array_methods)]
 #![feature(iter_intersperse)]
 #![feature(iter_array_chunks)]
 #![feature(iter_map_windows)]
