@@ -5,13 +5,7 @@ use crate::util::SplitAndParse;
 fn parse(input: &str) -> (Vec<u64>, Vec<u64>) {
     input
         .lines()
-        .map(|l| {
-            if let Ok([a, b]) = l.split_and_parse::<u64, _>("   ").as_deref() {
-                (*a, *b)
-            } else {
-                panic!("invalid line!")
-            }
-        })
+        .map(|l| l.split_once_and_parse::<u64, _>("   "))
         .unzip()
 }
 

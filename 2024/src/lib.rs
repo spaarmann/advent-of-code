@@ -8,7 +8,7 @@
 #![feature(array_chunks)]
 #![feature(pattern)]
 
-mod util;
+pub mod util;
 
 pub mod day1;
 // MARK:MODULES

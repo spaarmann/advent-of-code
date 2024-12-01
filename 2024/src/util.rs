@@ -1,4 +1,5 @@
 use std::{
+    fmt::Debug,
     ops::{Index, IndexMut, Range},
     str::{FromStr, pattern::Pattern},
 };
@@ -6,12 +7,35 @@ use std::{
 use itertools::Itertools;
 
 pub trait SplitAndParse {
-    fn split_and_parse<'a, T: FromStr, P: Pattern>(&'a self, pattern: P) -> Result<Vec<T>, T::Err>;
+    fn split_and_parse<'a, T: FromStr, P: Pattern + 'a>(
+        &'a self,
+        pattern: P,
+    ) -> impl Iterator<Item = T> + 'a
+    where
+        T::Err: Debug;
+
+    fn split_once_and_parse<T: FromStr, P: Pattern>(&self, pattern: P) -> (T, T)
+    where
+        T::Err: Debug;
 }
 
 impl SplitAndParse for str {
-    fn split_and_parse<'a, T: FromStr, P: Pattern>(&'a self, pattern: P) -> Result<Vec<T>, T::Err> {
-        self.split(pattern).map(|c| c.parse()).collect()
+    fn split_and_parse<'a, T: FromStr, P: Pattern + 'a>(
+        &'a self,
+        pattern: P,
+    ) -> impl Iterator<Item = T> + 'a
+    where
+        T::Err: Debug,
+    {
+        self.split(pattern).map(|c| c.parse().unwrap())
+    }
+
+    fn split_once_and_parse<T: FromStr, P: Pattern>(&self, pattern: P) -> (T, T)
+    where
+        T::Err: Debug,
+    {
+        let (l, r) = self.split_once(pattern).unwrap();
+        (l.parse().unwrap(), r.parse().unwrap())
     }
 }
 
