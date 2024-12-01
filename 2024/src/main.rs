@@ -11,6 +11,8 @@ fn main() {
     let input = fs::read_to_string(format!("input/{}", day)).expect("failed to read input file");
 
     match (day.as_str(), part) {
+        ("day1", 1) => run(&input, aoc2024::day1::part1),
+        ("day1", 2) => run(&input, aoc2024::day1::part2),
         // MARK:DAYS
         _ => panic!("day not implemented!"),
     }

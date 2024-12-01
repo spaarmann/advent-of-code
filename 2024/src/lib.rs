@@ -10,4 +10,5 @@
 
 mod util;
 
+pub mod day1;
 // MARK:MODULES
