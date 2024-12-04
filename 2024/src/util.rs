@@ -1,6 +1,6 @@
 use std::{
     fmt::Debug,
-    ops::{Index, IndexMut, Range},
+    ops::{Add, Index, IndexMut, Range},
     str::{FromStr, pattern::Pattern},
 };
 
@@ -50,6 +50,76 @@ pub fn zip_arr<T, const N: usize>(
             Some(nexts.map(Option::unwrap))
         }
     })
+}
+
+#[derive(PartialEq, Eq, Hash, Copy, Clone, Debug)]
+pub struct Vec2I(i64, i64);
+
+impl Add<Vec2I> for Vec2I {
+    type Output = Vec2I;
+
+    fn add(self, rhs: Vec2I) -> Self::Output {
+        Vec2I(self.0 + rhs.0, self.1 + rhs.1)
+    }
+}
+
+impl From<(i64, i64)> for Vec2I {
+    fn from(value: (i64, i64)) -> Self {
+        Self(value.0, value.1)
+    }
+}
+
+#[derive(PartialEq, Eq, Hash, Copy, Clone, Debug)]
+pub enum Direction {
+    N,
+    NE,
+    E,
+    SE,
+    S,
+    SW,
+    W,
+    NW,
+}
+use Direction::*;
+
+impl Direction {
+    pub const ALL: &'static [Direction] = &[N, NE, E, SE, S, SW, W, NW];
+    pub const DIAGONALS: &'static [Direction] = &[NE, SE, SW, NW];
+
+    pub fn offset(self) -> Vec2I {
+        match self {
+            N => (0, -1),
+            NE => (1, -1),
+            E => (1, 0),
+            SE => (1, 1),
+            S => (0, 1),
+            SW => (-1, 1),
+            W => (-1, 0),
+            NW => (-1, -1),
+        }
+        .into()
+    }
+
+    pub fn inverse(self) -> Self {
+        match self {
+            N => S,
+            NE => SW,
+            E => W,
+            SE => NW,
+            S => N,
+            SW => NE,
+            W => E,
+            NW => SE,
+        }
+    }
+}
+
+impl Add<Direction> for Vec2I {
+    type Output = Vec2I;
+
+    fn add(self, rhs: Direction) -> Self::Output {
+        self + rhs.offset()
+    }
 }
 
 #[derive(PartialEq, Eq, Hash, Debug)]
@@ -112,33 +182,37 @@ impl<T: Clone> Clone for Grid<T> {
 }
 
 impl<T> Grid<T> {
-    pub fn in_bounds(&self, (x, y): (i64, i64)) -> bool {
+    pub fn in_bounds(&self, Vec2I(x, y): Vec2I) -> bool {
         x >= 0 && (x as usize) < self.width && y >= 0 && (y as usize) < self.height
     }
 
-    pub fn find<P>(&self, mut predicate: P) -> Option<(i64, i64)>
+    pub fn get(&self, p: Vec2I) -> Option<&T> {
+        self.in_bounds(p).then(|| &self[p])
+    }
+
+    pub fn find<P>(&self, mut predicate: P) -> Option<Vec2I>
     where
         P: FnMut(&T) -> bool,
     {
         for y in 0..self.height as i64 {
             for x in 0..self.width as i64 {
-                if predicate(&self[(x, y)]) {
-                    return Some((x, y));
+                if predicate(&self[Vec2I(x, y)]) {
+                    return Some(Vec2I(x, y));
                 }
             }
         }
         None
     }
 
-    pub fn positions<'a, P>(&'a self, mut predicate: P) -> impl Iterator<Item = (i64, i64)> + 'a
+    pub fn positions<'a, P>(&'a self, mut predicate: P) -> impl Iterator<Item = Vec2I> + 'a
     where
         P: FnMut(&T) -> bool,
         P: 'a,
     {
         (0..self.height)
             .flat_map(|y| (0..self.width).map(move |x| (x, y)))
-            .map(|(x, y)| (x as i64, y as i64))
-            .filter(move |&(x, y)| predicate(&self[(x, y)]))
+            .map(|(x, y)| Vec2I(x as i64, y as i64))
+            .filter(move |&p| predicate(&self[p]))
     }
 
     pub fn rows(&self) -> impl Iterator<Item = impl Iterator<Item = &T> + '_> {
@@ -148,12 +222,27 @@ impl<T> Grid<T> {
     pub fn cols(&self) -> impl Iterator<Item = impl Iterator<Item = &T> + '_> {
         (0..self.width).map(move |x| (0..self.height).map(move |y| &self[(x, y)]))
     }
+
+    pub fn walk(&self, start: Vec2I, dir: Direction) -> impl Iterator<Item = &T> + '_ {
+        std::iter::successors(self.in_bounds(start).then_some(start), move |&p| {
+            self.in_bounds(p + dir).then_some(p + dir)
+        })
+        .map(|p| &self[p])
+    }
 }
 
 impl<T> Index<(i64, i64)> for Grid<T> {
     type Output = T;
     fn index(&self, (x, y): (i64, i64)) -> &T {
         &self.grid[(y as usize) * self.width + x as usize]
+    }
+}
+
+impl<T> Index<Vec2I> for Grid<T> {
+    type Output = T;
+
+    fn index(&self, index: Vec2I) -> &T {
+        &self[(index.0, index.1)]
     }
 }
 
