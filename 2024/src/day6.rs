@@ -43,7 +43,6 @@ pub fn part2(input: &str) -> u64 {
     let start = map.find(|&c| c == '^').unwrap();
 
     let mut modified = map.clone();
-    let mut count = 0;
     guard(&map, start)
         .unwrap()
         .into_iter()
@@ -51,9 +50,6 @@ pub fn part2(input: &str) -> u64 {
             modified[p] = '#';
             let loops = guard(&modified, start).is_none();
             modified[p] = '.';
-
-            count += 1;
-            dbg!(count);
 
             loops
         })
