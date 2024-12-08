@@ -53,7 +53,7 @@ pub fn zip_arr<T, const N: usize>(
 }
 
 #[derive(PartialEq, Eq, Hash, Copy, Clone, Debug)]
-pub struct Vec2I(i64, i64);
+pub struct Vec2I(pub i64, pub i64);
 
 impl Add<Vec2I> for Vec2I {
     type Output = Vec2I;
@@ -238,15 +238,17 @@ impl<T> Grid<T> {
         self.in_bounds(p).then(|| &self[p])
     }
 
+    pub fn iter_positions(&self) -> impl Iterator<Item = Vec2I> + '_ {
+        (0..self.height).flat_map(|y| (0..self.width).map(move |x| Vec2I(x as i64, y as i64)))
+    }
+
     pub fn find<P>(&self, mut predicate: P) -> Option<Vec2I>
     where
         P: FnMut(&T) -> bool,
     {
-        for y in 0..self.height as i64 {
-            for x in 0..self.width as i64 {
-                if predicate(&self[Vec2I(x, y)]) {
-                    return Some(Vec2I(x, y));
-                }
+        for p in self.iter_positions() {
+            if predicate(&self[p]) {
+                return Some(p);
             }
         }
         None
@@ -257,10 +259,7 @@ impl<T> Grid<T> {
         P: FnMut(&T) -> bool,
         P: 'a,
     {
-        (0..self.height)
-            .flat_map(|y| (0..self.width).map(move |x| (x, y)))
-            .map(|(x, y)| Vec2I(x as i64, y as i64))
-            .filter(move |&p| predicate(&self[p]))
+        self.iter_positions().filter(move |&p| predicate(&self[p]))
     }
 
     pub fn rows(&self) -> impl Iterator<Item = impl Iterator<Item = &T> + '_> {
