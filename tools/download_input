@@ -9,7 +9,8 @@ else
 	set day "$argv[1]"
 end
 
-set year (string split -f 2 -r -m1 / (pwd))
+# set year (string split -f 2 -r -m1 / (pwd))
+set year (string split -f 1 - (string split -f 2 -r -m1 / (pwd)))
 
 echo "Downloading input for day $day..."
 

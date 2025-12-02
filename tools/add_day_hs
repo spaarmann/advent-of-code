@@ -17,9 +17,9 @@ set main_path "app/Main.hs"
 set day_path "src/Day$day.hs"
 
 sed -i "/-- MARK:IMPORTS/i import Day$day" "$main_path"
-sed -i "/-- MARK:DAYS/i\\    [\"day$day\", \"1\"] -> readFile \"../2021/input/day$day\" >>= print . Day$day.part1" "$main_path"
+sed -i "/-- MARK:DAYS/i\\    [\"day$day\", \"1\"] -> readFile \"input/day$day\" >>= print . Day$day.part1" "$main_path"
 sed -i "/-- MARK:DAYS/i\\    [\"day$day\", \"1\", \"e\"] -> print \$ Day$day.part1 Day$day.example" "$main_path"
-sed -i "/-- MARK:DAYS/i\\    [\"day$day\", \"2\"] -> readFile \"../2021/input/day$day\" >>= print . Day$day.part2" "$main_path"
+sed -i "/-- MARK:DAYS/i\\    [\"day$day\", \"2\"] -> readFile \"input/day$day\" >>= print . Day$day.part2" "$main_path"
 sed -i "/-- MARK:DAYS/i\\    [\"day$day\", \"2\", \"e\"] -> print \$ Day$day.part2 Day$day.example" "$main_path"
 
 cp ../tools/template_day.hs "$day_path"
