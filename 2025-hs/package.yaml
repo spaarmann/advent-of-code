@@ -6,8 +6,6 @@ author:              "Sebastian Paarmann"
 maintainer:          "git@s-paarmann.de"
 copyright:           "Sebastian Paarmann"
 
-extra-source-files:
-
 # Metadata used when publishing your package
 # synopsis:            Short description of your package
 # category:            Web
@@ -27,6 +25,8 @@ ghc-options:
 - -Wmissing-home-modules
 - -Wpartial-fields
 - -Wredundant-constraints
+- -Wno-missing-signatures
+- -Wno-incomplete-patterns
 
 library:
   source-dirs: src
