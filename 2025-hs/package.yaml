@@ -14,6 +14,7 @@ description:         Advent of Code 2025!
 
 dependencies:
 - base >= 4.7 && < 5
+- parsec >= 3 && < 5
 
 ghc-options:
 - -Wall
