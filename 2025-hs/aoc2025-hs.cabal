@@ -24,6 +24,7 @@ library
       Day1
       Day2
       Day3
+      Day4
       Lib
       Util
   other-modules:
@@ -33,7 +34,9 @@ library
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -Wno-missing-signatures -Wno-incomplete-patterns
   build-depends:
       base >=4.7 && <5
+    , ghc >=9
     , parsec >=3 && <5
+    , vector ==0.13.*
   default-language: Haskell2010
 
 executable aoc2025-hs-exe
@@ -46,7 +49,9 @@ executable aoc2025-hs-exe
   build-depends:
       aoc2025-hs
     , base >=4.7 && <5
+    , ghc >=9
     , parsec >=3 && <5
+    , vector ==0.13.*
   default-language: Haskell2010
 
 test-suite aoc2025-hs-test
@@ -60,5 +65,7 @@ test-suite aoc2025-hs-test
   build-depends:
       aoc2025-hs
     , base >=4.7 && <5
+    , ghc >=9
     , parsec >=3 && <5
+    , vector ==0.13.*
   default-language: Haskell2010

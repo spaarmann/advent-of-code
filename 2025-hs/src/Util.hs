@@ -1,7 +1,8 @@
 module Util
   ( sepTuple
   , exp10
-  , numDigits) where
+  , numDigits
+  ) where
 
 import Text.Parsec
 import Text.Parsec.String
