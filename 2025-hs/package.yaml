@@ -17,6 +17,7 @@ dependencies:
 - parsec >= 3 && < 5
 - vector >= 0.13 && < 0.14
 - ghc >= 9
+- containers >= 0.6 && < 0.7
 
 ghc-options:
 - -Wall
