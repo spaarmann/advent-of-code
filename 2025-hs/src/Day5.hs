@@ -6,9 +6,9 @@ module Day5
 
 import Text.Parsec
 import Data.Either
-import qualified Data.Set as S
 import Util
-import Debug.Trace
+import Data.Function
+import Data.List (sortBy)
 
 example = "3-5\n\
           \10-14\n\
@@ -36,10 +36,20 @@ isFresh :: [(Int, Int)] -> Int -> Bool
 isFresh fresh i = any (contains i) fresh
   where contains x (a, b) = a <= x && b >= x
 
-part1 input = 
+part1 input =
   let (fresh, ingredients) = parseInput input
-   in traceShow (minimum $ map fst fresh, maximum $ map snd fresh) $ length $ filter (isFresh fresh) ingredients
+   in length $ filter (isFresh fresh) ingredients
 
+mergeSingle :: (Int, Int) -> (Int, Int) -> Maybe (Int, Int)
+mergeSingle (a, b) (c, d)
+  | a <= c && c <= b = Just (a, max b d)
+  | otherwise = Nothing
 
-expand (a, b) = S.fromAscList [a..b]
-part2 = length . S.unions . map expand . fst . parseInput
+merge :: [(Int, Int)] -> (Int, Int) -> [(Int, Int)]
+merge [] f = [f]
+merge (x:xs) f = case mergeSingle x f of
+                   Just m -> m:xs
+                   Nothing -> x : merge xs f
+
+part2 = sum . map size . foldl merge [] . sortBy (compare `on` fst) . fst . parseInput
+  where size (a, b) = b - a + 1
