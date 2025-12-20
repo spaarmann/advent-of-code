@@ -5,6 +5,7 @@ import Day2
 import Day3
 import Day4
 import Day5
+import Day6
 -- MARK:IMPORTS
 
 import System.Environment (getArgs)
@@ -34,5 +35,9 @@ main = do
     ["day5", "1", "e"] -> print $ Day5.part1 Day5.example
     ["day5", "2"] -> readFile "input/day5" >>= print . Day5.part2
     ["day5", "2", "e"] -> print $ Day5.part2 Day5.example
+    ["day6", "1"] -> readFile "input/day6" >>= print . Day6.part1
+    ["day6", "1", "e"] -> print $ Day6.part1 Day6.example
+    ["day6", "2"] -> readFile "input/day6" >>= print . Day6.part2
+    ["day6", "2", "e"] -> print $ Day6.part2 Day6.example
     -- MARK:DAYS
     _ -> exitFailure
