@@ -3,10 +3,10 @@ module Day6
     , part2
     , example
     ) where
-import Text.Parsec.String (Parser)
+
 import Text.Parsec
 import Data.Either
-import Debug.Trace (traceShow)
+import Data.List (transpose)
 
 example = "123 328  51 64 \n\
           \ 45 64  387 23 \n\
@@ -15,17 +15,19 @@ example = "123 328  51 64 \n\
 
 type Op = Int -> Int -> Int
 
-parseOps = fromRight [] . parse (op `sepBy` skipMany1 space) ""
-  where 
-    op = do _ <- char '*'; return (*)
-     <|> do _ <- char '+'; return (+)
-parseInts = fromRight [] . parse ((read <$> many1 digit) `sepBy` skipMany1 space) ""
+parseOps = fromRight [] . parse (op `endBy` skipMany1 space) ""
+  where
+    op = do _ <- char '*'; return ((*), 1)
+     <|> do _ <- char '+'; return ((+), 0)
+parseInts = fromRight [] . parse parser ""
+  where
+    parser = do spaces; (read <$> many1 digit) `endBy` spaces;
 
-parseInput :: String -> ([Op], [[Int]])
+parseInput :: String -> ([(Op, Int)], [[Int]])
 parseInput input =
   let (ol:nls) = reverse $ lines input
-   in (parseOps ol, map parseInts nls)
+   in (parseOps ol, transpose $ map parseInts nls)
 
-part1 input = traceShow (snd $ parseInput input) 0
+part1 = sum . uncurry (zipWith (uncurry foldl)) . parseInput
 
 part2 input = 0
